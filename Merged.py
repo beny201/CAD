@@ -1,10 +1,9 @@
-from ast import Lambda
 from tkinter import *
 import matplotlib.pyplot as plt
 from shapely.geometry import LineString, Point
 from shapely.ops import nearest_points
 import math
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 
@@ -31,6 +30,7 @@ LENGTH = {
     }
 }
 
+#Test1 
 
 # thickness washer
 T_HEAD_BOLT = {
@@ -258,15 +258,7 @@ def myclick():
     # placing the canvas on the Tkinter window
     canvas.get_tk_widget().grid(row=10, column=0, columnspan=2)
 
-    # creating the Matplotlib toolbar
-    #toolbar = NavigationToolbar2Tk(canvas,root)
-    # toolbar.update()
-
-    # placing the toolbar on the Tkinter window
-    #canvas.get_tk_widget().grid(row=10, column=3,)
-
     # printing output
-
     result = min_distance(class_bolt, looking_value[0], diameter_bolt)
     result_label = Label(root, text=result)
     result_label.grid(row=9, column=1, sticky="W")
