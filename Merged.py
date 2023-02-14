@@ -30,7 +30,8 @@ LENGTH = {
     }
 }
 
-#Test1 
+
+#czyli jesli teraz zmienie ? 
 
 # thickness washer
 T_HEAD_BOLT = {
