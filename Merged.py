@@ -6,32 +6,32 @@ import math
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-1231231231231231
+
 LENGTH = {
     "8.8": {
         "M12": (40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 180, 200),
-        "M16": (50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 180, 200),
+        "M16": (50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 180, 200),
         "M20": (50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 180, 200),
-        "M24": (60, 70, 80, 90, 100, 110, 120, 150, 160, 180, 200),
-        "M27": (60, 70, 80, 90, 100, 110, 120, 150, 160, 180, 200),
-        "M30": (70, 80, 90, 100, 110, 120, 130, 140),
-        "M36": (90, 100, 110, 120, 130, 200),
+        "M24": (60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 180, 200),
+        "M27": (60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 180, 200),
+        "M30": (70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 180, 200,),
+        "M36": (90, 100, 110, 120, 130, 140, 150, 160, 180, 200),
     },
 
 
     "10.9": {
         "M12": (50, 60, 70, 80, 90),
-        "M16": (50, 60, 70, 80, 90, 100, 180),
-        "M20": (60, 70, 80, 90, 100, 110, 120, 140),
-        "M24": (60, 70, 80, 90, 100, 110, 120, 140),
-        "M27": (60, 70, 80, 90, 100, 110, 120, 140),
-        "M30": (70, 80, 90, 100, 110, 120, 130, 140, 150),
-        "M36": (110, 120, 140, 150),
+        "M16": (50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 180),
+        "M20": (60, 70, 80, 90, 100, 110, 120, 130, 140, 150),
+        "M24": (60, 70, 80, 90, 100, 110, 120, 130, 140, 150),
+        "M27": (60, 70, 80, 90, 100, 110, 120, 130, 140, 150),
+        "M30": (70, 80, 90, 100, 110, 120, 130, 140, 150, 160),
+        "M36": (90, 100, 110, 120, 140, 150, 160),
     }
 }
 
 
-#czyli jesli teraz zmienie ? 
+# czyli jesli teraz zmienie ?
 
 # thickness washer
 T_HEAD_BOLT = {
@@ -71,7 +71,8 @@ T_WASHER = {
     "M16": 3.6,
     "M20": 3.6,
     "M24": 4.6,
-    "M30": 4.6,
+    "M27": 5,
+    "M30": 5,
     "M36": 6,
 }
 
@@ -80,6 +81,7 @@ T_NUTS = {
     "M16": 15,
     "M20": 18,
     "M24": 22,
+    "M27": 24,
     "M30": 26,
     "M36": 31,
 }
@@ -89,6 +91,7 @@ A_DISTANCE = {
     "M16": 4,
     "M20": 4,
     "M24": 4,
+    "M27": 6,
     "M30": 7,
     "M36": 7,
 }
@@ -101,12 +104,12 @@ Clamping = {
     "M24": 34,
     "M27": 51,
     "M30": 39,
-    "M36": 73,
+    "M36": 53,
 }
 root = Tk()
 root.title("Distance checker")
-WIDTH = "800"
-HEIGHT = "500"
+WIDTH = "1000"
+HEIGHT = "700"
 root.geometry(f"{WIDTH}x{HEIGHT}")
 
 
@@ -117,7 +120,8 @@ t_top_flange = 0.01
 height_column = 1
 t_connection_plate = 0.03
 class_bolt = "8.8"
-
+t_flange_column = 0.02
+diameter_bolt = "M12"
 # x and y values
 
 # Create function to execute
@@ -131,10 +135,12 @@ def getting_value():
     global t_connection_plate
     global diameter_bolt
     global class_bolt
+    global t_flange_column
     try:
         slope_girder = float(f_slope_girder.get())
         height_girder = int(f_girder_height.get())*0.001
         t_top_flange = int(f_t_flange_ridge.get())*0.001
+        t_flange_column = int(f_t_flange_column.get())*0.001
         height_column = int(f_column_width.get())*0.001
         t_connection_plate = int(f_t_connection_plate.get())*0.001
         diameter_bolt = used_bolt.get()
@@ -143,19 +149,24 @@ def getting_value():
         print("error")
 
 
-def searching_length(class_bolt, bolt, t_plate):
-
+def length_bolt(class_bolt, bolt, t_plate):
     new_list = []
     basic_length = 2*T_WASHER[bolt] + T_NUTS[bolt] + \
         (2*t_plate*1000) + A_DISTANCE[bolt]
     for x in LENGTH[class_bolt][bolt]:
         if x > basic_length:
             new_list.append(x)
-    searched_length_of_bolt = (new_list[0])*0.001 + (T_HEAD_BOLT[bolt])*0.001
+    return new_list[0]
+
+
+def searching_length(class_bolt, bolt, t_plate):
+
+    searched_length_of_bolt = (length_bolt(
+        class_bolt, bolt, t_plate))*0.001 + (T_HEAD_BOLT[bolt])*0.001
     return searched_length_of_bolt
 
 
-def finding_clamp(class_bolt, bolt, thickness_plate):
+def finding_bolt_for_clamp(class_bolt, bolt, thickness_plate):
     # Searching for possible length
     keys = [x for x in LENGTH[class_bolt][bolt]]
     # Making proper clamp length
@@ -164,29 +175,47 @@ def finding_clamp(class_bolt, bolt, thickness_plate):
     result = list(zip(keys, clamps))
     result_which_mach = [(lenght, clamp) for lenght,
                          clamp in result if clamp > 2 * thickness_plate*1000]
-    searched_length_of_bolt = (
-        result_which_mach[0][0])*0.001 + (T_HEAD_BOLT[bolt])*0.001
+    return result_which_mach[0][0]
+
+
+def finding_clamp(class_bolt, bolt, thickness_plate):
+    searched_length_of_bolt = finding_bolt_for_clamp(
+        class_bolt, bolt, thickness_plate)*0.001 + (T_HEAD_BOLT[bolt])*0.001
     return searched_length_of_bolt
 
 
 def min_distance(class_bolt, distance, bolt):
-
     offset = 0.5*T_WIDTH_BOLT[class_bolt][bolt] + (distance*1000)
     return int(offset)
 
 
-def myclick():
+def space_for_bolt_bottom(bolt_length, bolt, t_plate):
+    needed_length = (bolt_length-2*t_plate*1000-T_WASHER[bolt])*0.001
+    return needed_length
+
+
+def myRidge():
     getting_value()
     if class_bolt == "10.9":
+        bolt_length = finding_bolt_for_clamp(
+            class_bolt, diameter_bolt, t_connection_plate)
         distance = finding_clamp(class_bolt, diameter_bolt, t_connection_plate)
     else:
+        bolt_length = length_bolt(
+            class_bolt, diameter_bolt, t_connection_plate)
         distance = searching_length(
             class_bolt, diameter_bolt, t_connection_plate)
+
+    additional_check = space_for_bolt_bottom(
+        bolt_length, diameter_bolt, t_connection_plate)
+
+    print(additional_check)
+    print(bolt_length)
     # drawings first line top flange column
     A = Point(start_points[0], start_points[1])
-    B = Point(start_points[0], start_points[0]-2)
+    B = Point(start_points[0], start_points[0]-3)
     line_ab = LineString([A, B])
-
+    flange_ab = line_ab.parallel_offset(t_flange_column, "left")
     # drawings second line bottom flange column
 
     line_cd = line_ab.parallel_offset(height_column, "left")
@@ -195,7 +224,7 @@ def myclick():
     D = Point(line_cd.coords[1])
 
     # drawings third line top flange
-    E = Point(2, (math.tan(math.radians(slope_girder)))*2)
+    E = Point(3, (math.tan(math.radians(slope_girder)))*2)
     line_ae = LineString([A, E])
     flange_ae = line_ae.parallel_offset(t_top_flange, "right")
 
@@ -216,8 +245,20 @@ def myclick():
     line_dh = LineString([D, H])
 
     # offset to find distance for bolts height
-
     line_ij = line_ah.parallel_offset(distance + t_connection_plate, "left")
+
+    # offset to find distance for bolts height, assembly from bottom
+    line_ij1 = line_ah.parallel_offset(distance + t_connection_plate, "right")
+
+    # offset to find distance for bolts height, assembly from bottom, check top space
+
+    line_ij2 = line_ah.parallel_offset(
+        additional_check + t_connection_plate, "left")
+
+     # offset to find distance for bolts height, assembly from top, check bottom space
+    
+    line_ij3 = line_ah.parallel_offset(
+        additional_check + t_connection_plate, "right")
 
     # intersection height of bolt and flange
 
@@ -227,12 +268,61 @@ def myclick():
 
     line_kl = LineString([K, L[0]])
 
-    looking_value = A.distance(L)
+    looking_value_top = A.distance(L)
+    print(looking_value_top[0])
 
-    fig = Figure(figsize=(3, 3), dpi=100)
+    # intersection of columns flange and length of bolts
+    M = line_ij1.intersection(flange_ab)
+    N = nearest_points(line_ah, M)
+    line_mn = LineString([M, N[0]])
+
+    looking_value_bottom = A.distance(N)
+    print(looking_value_bottom[0])
+
+    # intersection of girder flange and space needed for rest of bolt from bottom mounting 
+
+    O = line_ij2.intersection(flange_ae)
+    P = nearest_points(line_ah, O)
+    line_op = LineString([O, P[0]])
+
+
+    # intersection of column flange and space needed for rest of bolt from top mounting 
+
+    R = line_ij3.intersection(flange_ab)
+    S = nearest_points(line_ah, R)
+    line_rs = LineString([R, S[0]])
+    looking_value_top_space = A.distance(S)
+    print(f" Dobra montaż od dołu {looking_value_top_space[0]}")
+
+    # drawing line of bolt when mounting from bottom
+    T = nearest_points(line_ij1, O)
+    
+    line_pt = LineString([O, T[0]])
+
+    looking_value_bottom_space = A.distance(P)
+    print(f" Dobra montaż od dołu {looking_value_bottom_space[0]}")
+
+
+
+    fig = Figure(figsize=(3, 3), dpi=200)
 
     # adding the subplot
     plot1 = fig.add_subplot(111)
+
+    if looking_value_bottom_space[0] >= looking_value_bottom[0]:
+        value_bottom = looking_value_bottom_space[0]
+        plot1.plot(*line_pt.xy)
+    else:
+        value_bottom = looking_value_bottom[0]
+        plot1.plot(*line_mn.xy)
+
+
+    if looking_value_top_space[0] >= looking_value_top[0]:
+        value_top = looking_value_top_space[0]
+        #plot1.plot(*line_pt.xy)
+    else:
+        value_top = looking_value_top[0]
+        #plot1.plot(*line_mn.xy)
 
     # plotting the graph
     plot1.plot(
@@ -246,7 +336,15 @@ def myclick():
         *line_kl.xy,
         # *line_ij.xy,
         *line_gh.xy,
-        *line_dh.xy
+        *line_dh.xy,
+        # *line_ij1.xy,
+        # *flange_ab.xy,
+        #*line_mn.xy,
+        # *line_ij2.xy,
+        #*line_op.xy,
+        #*line_pt.xy,
+        *line_rs.xy,
+        #*line_ij3.xy,
     )
     # Make axis equal
     plot1.axis('equal')
@@ -257,19 +355,25 @@ def myclick():
 
     canvas.draw()
     # placing the canvas on the Tkinter window
-    canvas.get_tk_widget().grid(row=10, column=0, columnspan=2)
+    canvas.get_tk_widget().grid(row=11, column=0, columnspan=2)
 
     # printing output
-    result = min_distance(class_bolt, looking_value[0], diameter_bolt)
+    result = min_distance(class_bolt, value_top, diameter_bolt)
     result_label = Label(root, text=result)
     result_label.grid(row=9, column=1, sticky="W")
-    result_label1 = Label(root, text="Searching value",
+    result_label1 = Label(root, text="Distance from top",
                           font='Helvetica 10 bold')
     result_label1.grid(row=9, column=0, sticky="E")
 
+    result = min_distance(class_bolt, value_bottom, diameter_bolt)
+    result_label = Label(root, text=result)
+    result_label.grid(row=10, column=1, sticky="W")
+    result_label1 = Label(root, text="Distance from bottom",
+                          font='Helvetica 10 bold')
+    result_label1.grid(row=10, column=0, sticky="E")
+
+
 # Create text boxes
-
-
 f_slope_girder = Entry(root, width=20)
 f_slope_girder.grid(row=0, column=1, padx=20),
 f_slope_girder.insert(0, "10.5")
@@ -345,7 +449,7 @@ used_bolt_label.grid(row=6, column=0, sticky="E")
 
 # Create button to execute
 
-myButton = Button(root, text="Check minimum distance", command=myclick)
+myButton = Button(root, text="Check minimum distance", command=myRidge)
 myButton.grid(row=8, column=0, columnspan=2)
 
 root.mainloop()
