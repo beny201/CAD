@@ -255,7 +255,7 @@ def myRidge():
     line_ij2 = line_ah.parallel_offset(
         additional_check + t_connection_plate, "left")
 
-     # offset to find distance for bolts height, assembly from top, check bottom space
+    # offset to find distance for bolts height, assembly from top, check bottom space
     
     line_ij3 = line_ah.parallel_offset(
         additional_check + t_connection_plate, "right")
@@ -290,9 +290,10 @@ def myRidge():
 
     R = line_ij3.intersection(flange_ab)
     S = nearest_points(line_ah, R)
+    
     line_rs = LineString([R, S[0]])
     looking_value_top_space = A.distance(S)
-    print(f" Dobra montaż od dołu {looking_value_top_space[0]}")
+    print(f" Assembly top {looking_value_top_space[0]}")
 
     # drawing line of bolt when mounting from bottom
     T = nearest_points(line_ij1, O)
@@ -300,11 +301,17 @@ def myRidge():
     line_pt = LineString([O, T[0]])
 
     looking_value_bottom_space = A.distance(P)
-    print(f" Dobra montaż od dołu {looking_value_bottom_space[0]}")
+    print(f" Assembly bottom {looking_value_bottom_space[0]}")
 
+    # drawing line of bolt when mounting from top
+    U = nearest_points(line_ij2, R)
+    
+    line_ur = LineString([R, U[0]])
 
+    looking_value_bottom_space = A.distance(P)
+    print(f" Assembly bottom {looking_value_bottom_space[0]}")
 
-    fig = Figure(figsize=(3, 3), dpi=200)
+    fig = Figure(figsize=(3, 3), dpi=140)
 
     # adding the subplot
     plot1 = fig.add_subplot(111)
@@ -319,10 +326,10 @@ def myRidge():
 
     if looking_value_top_space[0] >= looking_value_top[0]:
         value_top = looking_value_top_space[0]
-        #plot1.plot(*line_pt.xy)
+        plot1.plot(*line_ur.xy)
     else:
         value_top = looking_value_top[0]
-        #plot1.plot(*line_mn.xy)
+        plot1.plot(*line_kl.xy)
 
     # plotting the graph
     plot1.plot(
@@ -333,7 +340,7 @@ def myRidge():
         # *line_fg.xy
         # *flange_ae.xy
         *line_ah.xy,
-        *line_kl.xy,
+        #*line_kl.xy,
         # *line_ij.xy,
         *line_gh.xy,
         *line_dh.xy,
@@ -343,7 +350,7 @@ def myRidge():
         # *line_ij2.xy,
         #*line_op.xy,
         #*line_pt.xy,
-        *line_rs.xy,
+        #*line_rs.xy,
         #*line_ij3.xy,
     )
     # Make axis equal
