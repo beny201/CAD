@@ -30,9 +30,6 @@ LENGTH = {
     }
 }
 
-
-# czyli jesli teraz zmienie ?
-
 # thickness washer
 T_HEAD_BOLT = {
     "M12": 8,
@@ -43,7 +40,6 @@ T_HEAD_BOLT = {
     "M30": 19,
     "M36": 23,
 }
-
 
 # thickness washer
 T_WIDTH_BOLT = {
@@ -112,7 +108,7 @@ WIDTH = "1000"
 HEIGHT = "700"
 root.geometry(f"{WIDTH}x{HEIGHT}")
 
-
+# x and y values
 start_points = (0, 0)
 slope_girder = 10
 height_girder = 1
@@ -122,10 +118,9 @@ t_connection_plate = 0.03
 class_bolt = "8.8"
 t_flange_column = 0.02
 diameter_bolt = "M12"
-# x and y values
+
 
 # Create function to execute
-
 
 def getting_value():
     global slope_girder
@@ -256,7 +251,7 @@ def myRidge():
         additional_check + t_connection_plate, "left")
 
     # offset to find distance for bolts height, assembly from top, check bottom space
-    
+
     line_ij3 = line_ah.parallel_offset(
         additional_check + t_connection_plate, "right")
 
@@ -269,7 +264,6 @@ def myRidge():
     line_kl = LineString([K, L[0]])
 
     looking_value_top = A.distance(L)
-    print(looking_value_top[0])
 
     # intersection of columns flange and length of bolts
     M = line_ij1.intersection(flange_ab)
@@ -277,39 +271,37 @@ def myRidge():
     line_mn = LineString([M, N[0]])
 
     looking_value_bottom = A.distance(N)
-    print(looking_value_bottom[0])
 
-    # intersection of girder flange and space needed for rest of bolt from bottom mounting 
+    # intersection of girder flange and space needed for rest of bolt from bottom mounting
 
     O = line_ij2.intersection(flange_ae)
     P = nearest_points(line_ah, O)
     line_op = LineString([O, P[0]])
 
-
-    # intersection of column flange and space needed for rest of bolt from top mounting 
+    # intersection of column flange and space needed for rest of bolt from top mounting
 
     R = line_ij3.intersection(flange_ab)
     S = nearest_points(line_ah, R)
-    
+
     line_rs = LineString([R, S[0]])
     looking_value_top_space = A.distance(S)
-    print(f" Assembly top {looking_value_top_space[0]}")
+    #print(f" Assembly top {looking_value_top_space[0]}")
 
     # drawing line of bolt when mounting from bottom
     T = nearest_points(line_ij1, O)
-    
+
     line_pt = LineString([O, T[0]])
 
     looking_value_bottom_space = A.distance(P)
-    print(f" Assembly bottom {looking_value_bottom_space[0]}")
+    #print(f" Assembly bottom {looking_value_bottom_space[0]}")
 
     # drawing line of bolt when mounting from top
     U = nearest_points(line_ij2, R)
-    
+
     line_ur = LineString([R, U[0]])
 
     looking_value_bottom_space = A.distance(P)
-    print(f" Assembly bottom {looking_value_bottom_space[0]}")
+    #print(f" Assembly bottom {looking_value_bottom_space[0]}")
 
     fig = Figure(figsize=(3, 3), dpi=140)
 
@@ -322,7 +314,6 @@ def myRidge():
     else:
         value_bottom = looking_value_bottom[0]
         plot1.plot(*line_mn.xy)
-
 
     if looking_value_top_space[0] >= looking_value_top[0]:
         value_top = looking_value_top_space[0]
@@ -340,18 +331,18 @@ def myRidge():
         # *line_fg.xy
         # *flange_ae.xy
         *line_ah.xy,
-        #*line_kl.xy,
+        # *line_kl.xy,
         # *line_ij.xy,
         *line_gh.xy,
         *line_dh.xy,
         # *line_ij1.xy,
         # *flange_ab.xy,
-        #*line_mn.xy,
+        # *line_mn.xy,
         # *line_ij2.xy,
-        #*line_op.xy,
-        #*line_pt.xy,
-        #*line_rs.xy,
-        #*line_ij3.xy,
+        # *line_op.xy,
+        # *line_pt.xy,
+        # *line_rs.xy,
+        # *line_ij3.xy,
     )
     # Make axis equal
     plot1.axis('equal')
@@ -368,14 +359,14 @@ def myRidge():
     result = min_distance(class_bolt, value_top, diameter_bolt)
     result_label = Label(root, text=result)
     result_label.grid(row=9, column=1, sticky="W")
-    result_label1 = Label(root, text="Distance from top",
+    result_label1 = Label(root, text="Distance when mounting from top",
                           font='Helvetica 10 bold')
     result_label1.grid(row=9, column=0, sticky="E")
 
     result = min_distance(class_bolt, value_bottom, diameter_bolt)
     result_label = Label(root, text=result)
     result_label.grid(row=10, column=1, sticky="W")
-    result_label1 = Label(root, text="Distance from bottom",
+    result_label1 = Label(root, text="Distance when mounting from bottom",
                           font='Helvetica 10 bold')
     result_label1.grid(row=10, column=0, sticky="E")
 
@@ -432,7 +423,7 @@ slope_girder_label = Label(root, text="Insert angle of girder",)
 slope_girder_label.grid(row=0, column=0, sticky="E")
 
 
-girder_height_label = Label(root, text="Girder width",)
+girder_height_label = Label(root, text="Girder height",)
 girder_height_label.grid(row=1, column=0, sticky="E")
 
 profiles_units = Label(root, text="[mm]",)
@@ -451,8 +442,49 @@ t_connection_plate_label = Label(
     root, text="Thickness of plate in connection",)
 t_connection_plate_label.grid(row=5, column=0, sticky="E")
 
-used_bolt_label = Label(root, text="Used bolt in connection",)
+used_bolt_label = Label(root, text="Used bolt in corner connection",)
 used_bolt_label.grid(row=6, column=0, sticky="E")
+
+# --------------------------------------------------------------
+
+# Create text boxes
+f_slope_girder_left = Entry(root, width=20)
+f_slope_girder_left.grid(row=0, column=8, padx=20),
+f_slope_girder_left.insert(0, "10.5")
+
+
+f_slope_girder_right = Entry(root, width=20)
+f_slope_girder_right.grid(row=1, column=8, padx=20),
+f_slope_girder_right.insert(0, "10.5")
+
+f_girder_height_ridge = Entry(root, width=20)
+f_girder_height_ridge.grid(row=2, column=8, padx=20)
+f_girder_height_ridge.insert(0, "900")
+
+f_t_flange_girder_left = Entry(root, width=20)
+f_t_flange_girder_left.grid(row=3, column=8, padx=20)
+f_t_flange_girder_left.insert(0, "20")
+
+f_t_flange_girder_right = Entry(root, width=20)
+f_t_flange_girder_right.grid(row=4, column=8, padx=20)
+f_t_flange_girder_right.insert(0, "20")
+
+
+f_t_connection_plate_ridge = Entry(root, width=20)
+f_t_connection_plate_ridge.grid(row=5, column=8, padx=20)
+f_t_connection_plate_ridge.insert(0, "30")
+
+
+# Create text labels
+empty = Label(root, text="      ",)
+empty.grid(row=0, column=6, sticky="N")
+
+f_slope_girder_left = Label(root, text="Insert angle of left girder",)
+f_slope_girder_left.grid(row=0, column=7, sticky="E")
+
+f_slope_girder_right = Label(root, text="Insert angle of right girder",)
+f_slope_girder_right.grid(row=1, column=7, sticky="E")
+
 
 # Create button to execute
 
