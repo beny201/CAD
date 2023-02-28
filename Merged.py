@@ -122,7 +122,7 @@ diameter_bolt = "M12"
 
 # Create function to execute
 
-def getting_value():
+def getting_value_corner():
     global slope_girder
     global height_girder
     global t_top_flange
@@ -139,7 +139,29 @@ def getting_value():
         height_column = int(f_column_width.get())*0.001
         t_connection_plate = int(f_t_connection_plate.get())*0.001
         diameter_bolt = used_bolt.get()
-        class_bolt = ussed_class.get()
+        class_bolt = used_class.get()
+    except ValueError:
+        print("error")
+
+
+def getting_value_ridge():
+    global slope_girder_left
+    global slope_girder_right
+    global girder_height_ridge
+    global t_flange_girder_left
+    global t_flange_girder_right
+    global t_connection_plate_ridge
+    global diameter_bolt_ridge
+    global class_bolt_ridge
+    try:
+        slope_girder_left = float(f_slope_girder_left.get())
+        slope_girder_right = float(f_slope_girder_right.get())
+        girder_height_ridge = int(f_girder_height_ridge.get())*0.001
+        t_flange_girder_left = int(f_t_flange_girder_left.get())*0.001
+        t_flange_girder_right = int(f_t_flange_girder_right.get())*0.001
+        t_connection_plate_ridge = int(f_t_connection_plate_ridge.get())*0.001
+        diameter_bolt_ridge = used_bolt_ridge.get()
+        class_bolt_ridge = used_class_ridge.get()
     except ValueError:
         print("error")
 
@@ -189,8 +211,8 @@ def space_for_bolt_bottom(bolt_length, bolt, t_plate):
     return needed_length
 
 
-def myRidge():
-    getting_value()
+def my_corner():
+    getting_value_corner()
     if class_bolt == "10.9":
         bolt_length = finding_bolt_for_clamp(
             class_bolt, diameter_bolt, t_connection_plate)
@@ -396,15 +418,12 @@ f_t_connection_plate = Entry(root, width=20)
 f_t_connection_plate.grid(row=5, column=1, padx=20)
 f_t_connection_plate.insert(0, "30")
 
-#f_used_bolt = Entry(root, width=20)
-#f_used_bolt.grid(row=6, column=1, padx=20)
-#f_used_bolt.insert(0, "M16")
 
-ussed_class = StringVar(root)
-ussed_class.set("Select class")
-possible_class = [x for x in LENGTH]
-f_ussed_class = OptionMenu(root, ussed_class, *possible_class)
-f_ussed_class.grid(row=6, column=1, sticky="N")
+used_class = StringVar(root)
+used_class.set("Select class")
+possible_class = [grade for grade in LENGTH]
+f_used_class = OptionMenu(root, used_class, *possible_class)
+f_used_class.grid(row=6, column=1, sticky="N")
 
 # Variable to keep track of the option
 # selected in OptionMenu
@@ -414,6 +433,23 @@ possible_bolts = [x for x in LENGTH[class_bolt]]
 used_bolt.set("Select an bolt")
 f_used_bolt = OptionMenu(root, used_bolt, *possible_bolts)
 f_used_bolt.grid(row=6, column=2, sticky="N")
+
+# for ridge connetion
+used_class_ridge = StringVar(root)
+used_class_ridge.set("Select class")
+possible_class_ridge = [grade for grade in LENGTH]
+f_used_class_ridge = OptionMenu(root, used_class, *possible_class)
+f_used_class_ridge.grid(row=6, column=8, sticky="N")
+
+# Variable to keep track of the option
+# selected in OptionMenu
+used_bolt_ridge = StringVar(root)
+possible_bolts_ridge = [x for x in LENGTH[class_bolt]]
+# Set the default value of the variable
+used_bolt_ridge.set("Select an bolt")
+f_used_bolt_ridge = OptionMenu(root, used_bolt, *possible_bolts)
+f_used_bolt_ridge.grid(row=6, column=9, sticky="N")
+
 
 # Create text labels
 slope_girder_units = Label(root, text="Degree []",)
@@ -444,6 +480,7 @@ t_connection_plate_label.grid(row=5, column=0, sticky="E")
 
 used_bolt_label = Label(root, text="Used bolt in corner connection",)
 used_bolt_label.grid(row=6, column=0, sticky="E")
+
 
 # --------------------------------------------------------------
 
@@ -485,10 +522,33 @@ f_slope_girder_left.grid(row=0, column=7, sticky="E")
 f_slope_girder_right = Label(root, text="Insert angle of right girder",)
 f_slope_girder_right.grid(row=1, column=7, sticky="E")
 
+f_girder_height_ridge = Label(root, text="Insert height of girder",)
+f_girder_height_ridge.grid(row=2, column=7, sticky="E")
+
+f_t_flange_girder_left = Label(
+    root, text="Thickness of flange in left girder",)
+f_t_flange_girder_left.grid(row=3, column=7, sticky="E")
+
+f_t_flange_girder_right = Label(
+    root, text="Thickness of flange in right girder",)
+f_t_flange_girder_right.grid(row=4, column=7, sticky="E")
+
+f_t_connection_plate_ridge = Label(
+    root, text="Thickness of plate in connection",)
+f_t_connection_plate_ridge.grid(row=5, column=7, sticky="E")
+
+
+used_bolt_label = Label(root, text="Used bolt in ridge connection",)
+used_bolt_label.grid(row=6, column=7, sticky="E")
+
 
 # Create button to execute
 
-myButton = Button(root, text="Check minimum distance", command=myRidge)
+myButton = Button(root, text="Check minimum distance", command=my_corner)
 myButton.grid(row=8, column=0, columnspan=2)
+
+
+myButton = Button(root, text="Check minimum distance", command=my_corner)
+myButton.grid(row=8, column=7, columnspan=2)
 
 root.mainloop()
