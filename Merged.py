@@ -119,8 +119,16 @@ class_bolt = "8.8"
 t_flange_column = 0.02
 diameter_bolt = "M12"
 
+slope_girder_left = 10
+slope_girder_right = 10
+girder_height_ridge = 1
+t_flange_girder_left = 0.01
+t_flange_girder_right = 0.01
+diameter_bolt_ridge = "M12"
+class_bolt_ridge = "8.8"
 
 # Create function to execute
+
 
 def getting_value_corner():
     global slope_girder
@@ -393,6 +401,77 @@ def my_corner():
     result_label1.grid(row=10, column=0, sticky="E")
 
 
+def my_ridge():
+    getting_value_ridge()
+    if class_bolt_ridge == "10.9":
+        bolt_length_ridge = finding_bolt_for_clamp(
+            class_bolt_ridge, diameter_bolt_ridge, t_connection_plate_ridge)
+        distance_ridge = finding_clamp(
+            class_bolt, diameter_bolt_ridge, t_connection_plate_ridge)
+    else:
+        bolt_length_ridge = length_bolt(
+            class_bolt_ridge, diameter_bolt_ridge, t_connection_plate_ridge)
+        distance_ridge = searching_length(
+            class_bolt_ridge, diameter_bolt_ridge, t_connection_plate_ridge)
+
+    additional_check = space_for_bolt_bottom(
+        bolt_length_ridge, diameter_bolt_ridge, t_connection_plate_ridge)
+
+    print(additional_check)
+    print(bolt_length_ridge)
+
+    # drawings first line top flange
+
+    A1 = Point(start_points[0], start_points[1])
+    A2 = Point(start_points[0], start_points[1]-3)
+    B1 = Point(2, (math.tan(math.radians(-slope_girder_right)))*2)
+    B2 = Point(-2, (math.tan(math.radians(-slope_girder_left)))*2)
+    line_a1b1 = LineString([A1, B1])
+    line_a1b2 = LineString([A1, B2])
+   # drawings forth line bottom flange
+    line_a2b3 = line_a1b1.parallel_offset(girder_height_ridge, "right")
+    line_a2b4 = line_a1b2.parallel_offset(girder_height_ridge, "left")
+
+    A1_off = Point(line_a2b3.coords[0])
+    B3 = Point(line_a2b3.coords[1])
+    print(A1)
+
+    B4 = Point(line_a2b4.coords[1])
+
+    line_a1a2 = LineString([A1, A2])
+    A3 = line_a2b3.intersection(line_a1a2)
+    A4 = line_a2b4.intersection(line_a1a2)
+
+    if A3.y <= A4.y:
+        end_point_for_ridge = A3
+    else:
+        end_point_for_ridge = A4
+
+    line_a1_end_point_for_ridge = LineString([A1, end_point_for_ridge])
+
+    fig1 = Figure(figsize=(3, 3), dpi=140)
+ # adding the subplot
+    plot2 = fig1.add_subplot(111)
+    # plotting the graph
+    plot2.plot(
+        *line_a1b1.xy,
+        *line_a1b2.xy,
+        *line_a2b3.xy,
+        *line_a2b4.xy,
+        *line_a1_end_point_for_ridge.xy,
+    )
+    # Make axis equal
+    plot2.axis('equal')
+
+    # creating the Tkinter canvas
+    # containing the Matplotlib figure
+    canvas = FigureCanvasTkAgg(fig1, master=root)
+
+    canvas.draw()
+    # placing the canvas on the Tkinter window
+    canvas.get_tk_widget().grid(row=11, column=7, columnspan=2)
+
+
 # Create text boxes
 f_slope_girder = Entry(root, width=20)
 f_slope_girder.grid(row=0, column=1, padx=20),
@@ -438,7 +517,7 @@ f_used_bolt.grid(row=6, column=2, sticky="N")
 used_class_ridge = StringVar(root)
 used_class_ridge.set("Select class")
 possible_class_ridge = [grade for grade in LENGTH]
-f_used_class_ridge = OptionMenu(root, used_class, *possible_class)
+f_used_class_ridge = OptionMenu(root, used_class_ridge, *possible_class_ridge)
 f_used_class_ridge.grid(row=6, column=8, sticky="N")
 
 # Variable to keep track of the option
@@ -447,7 +526,7 @@ used_bolt_ridge = StringVar(root)
 possible_bolts_ridge = [x for x in LENGTH[class_bolt]]
 # Set the default value of the variable
 used_bolt_ridge.set("Select an bolt")
-f_used_bolt_ridge = OptionMenu(root, used_bolt, *possible_bolts)
+f_used_bolt_ridge = OptionMenu(root, used_bolt_ridge, *possible_bolts_ridge)
 f_used_bolt_ridge.grid(row=6, column=9, sticky="N")
 
 
@@ -516,26 +595,26 @@ f_t_connection_plate_ridge.insert(0, "30")
 empty = Label(root, text="      ",)
 empty.grid(row=0, column=6, sticky="N")
 
-f_slope_girder_left = Label(root, text="Insert angle of left girder",)
-f_slope_girder_left.grid(row=0, column=7, sticky="E")
+slope_girder_left = Label(root, text="Insert angle of left girder",)
+slope_girder_left.grid(row=0, column=7, sticky="E")
 
-f_slope_girder_right = Label(root, text="Insert angle of right girder",)
-f_slope_girder_right.grid(row=1, column=7, sticky="E")
+slope_girder_right = Label(root, text="Insert angle of right girder",)
+slope_girder_right.grid(row=1, column=7, sticky="E")
 
-f_girder_height_ridge = Label(root, text="Insert height of girder",)
-f_girder_height_ridge.grid(row=2, column=7, sticky="E")
+girder_height_ridge = Label(root, text="Insert height of girder",)
+girder_height_ridge.grid(row=2, column=7, sticky="E")
 
-f_t_flange_girder_left = Label(
+t_flange_girder_left = Label(
     root, text="Thickness of flange in left girder",)
-f_t_flange_girder_left.grid(row=3, column=7, sticky="E")
+t_flange_girder_left.grid(row=3, column=7, sticky="E")
 
-f_t_flange_girder_right = Label(
+t_flange_girder_right = Label(
     root, text="Thickness of flange in right girder",)
-f_t_flange_girder_right.grid(row=4, column=7, sticky="E")
+t_flange_girder_right.grid(row=4, column=7, sticky="E")
 
-f_t_connection_plate_ridge = Label(
+t_connection_plate_ridge = Label(
     root, text="Thickness of plate in connection",)
-f_t_connection_plate_ridge.grid(row=5, column=7, sticky="E")
+t_connection_plate_ridge.grid(row=5, column=7, sticky="E")
 
 
 used_bolt_label = Label(root, text="Used bolt in ridge connection",)
@@ -544,11 +623,12 @@ used_bolt_label.grid(row=6, column=7, sticky="E")
 
 # Create button to execute
 
-myButton = Button(root, text="Check minimum distance", command=my_corner)
+myButton = Button(root, text="Check minimum distance corner",
+                  command=my_corner)
 myButton.grid(row=8, column=0, columnspan=2)
 
 
-myButton = Button(root, text="Check minimum distance", command=my_corner)
+myButton = Button(root, text="Check minimum distance ridge", command=my_ridge)
 myButton.grid(row=8, column=7, columnspan=2)
 
 root.mainloop()
