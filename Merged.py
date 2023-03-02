@@ -104,8 +104,8 @@ Clamping = {
 }
 root = Tk()
 root.title("Distance checker")
-WIDTH = "1000"
-HEIGHT = "700"
+WIDTH = "1200"
+HEIGHT = "1000"
 root.geometry(f"{WIDTH}x{HEIGHT}")
 
 # x and y values
@@ -355,24 +355,11 @@ def my_corner():
     # plotting the graph
     plot1.plot(
         *line_ab.xy,
-        # *line_cd.xy
         *line_ae.xy,
         *line_ae.xy,
-        # *line_fg.xy
-        # *flange_ae.xy
         *line_ah.xy,
-        # *line_kl.xy,
-        # *line_ij.xy,
         *line_gh.xy,
         *line_dh.xy,
-        # *line_ij1.xy,
-        # *flange_ab.xy,
-        # *line_mn.xy,
-        # *line_ij2.xy,
-        # *line_op.xy,
-        # *line_pt.xy,
-        # *line_rs.xy,
-        # *line_ij3.xy,
     )
     # Make axis equal
     plot1.axis('equal')
@@ -423,31 +410,118 @@ def my_ridge():
     # drawings first line top flange
 
     A1 = Point(start_points[0], start_points[1])
-    A2 = Point(start_points[0], start_points[1]-3)
-    B1 = Point(2, (math.tan(math.radians(-slope_girder_right)))*2)
-    B2 = Point(-2, (math.tan(math.radians(-slope_girder_left)))*2)
+    A2 = Point(start_points[0], start_points[1]-1.5)
+    B1 = Point(1.5, (math.tan(math.radians(-slope_girder_right)))*1.5)
+    B2 = Point(-1.5, (math.tan(math.radians(-slope_girder_left)))*1.5)
     line_a1b1 = LineString([A1, B1])
     line_a1b2 = LineString([A1, B2])
-   # drawings forth line bottom flange
-    line_a2b3 = line_a1b1.parallel_offset(girder_height_ridge, "right")
-    line_a2b4 = line_a1b2.parallel_offset(girder_height_ridge, "left")
 
-    A1_off = Point(line_a2b3.coords[0])
-    B3 = Point(line_a2b3.coords[1])
-    print(A1)
+    # drawings thickness top flange right side
+    line_a1b1_flange = line_a1b1.parallel_offset(
+        t_flange_girder_right, "right")
 
-    B4 = Point(line_a2b4.coords[1])
+    # drawings thickness top flange left side
+    line_a1b2_flange = line_a1b2.parallel_offset(t_flange_girder_left, "left")
+    # drawings line bottom flange
+    line_a3b3 = line_a1b1.parallel_offset(girder_height_ridge, "right")
+    line_a4b4 = line_a1b2.parallel_offset(girder_height_ridge, "left")
 
+    A3 = Point(line_a3b3.coords[0])
+    B3 = Point(line_a3b3.coords[1])
+    print(A3, B3)
+    A4 = Point(line_a4b4.coords[0])
+    B4 = Point(line_a4b4.coords[1])
+    print(A4, B4)
+
+    # line for ridge connection
     line_a1a2 = LineString([A1, A2])
-    A3 = line_a2b3.intersection(line_a1a2)
-    A4 = line_a2b4.intersection(line_a1a2)
+    A5 = line_a3b3.intersection(line_a1a2)
+    A6 = line_a4b4.intersection(line_a1a2)
 
-    if A3.y <= A4.y:
-        end_point_for_ridge = A3
+    # finding lowest point
+    if A5.y <= A6.y:
+        end_point_for_ridge = A5
     else:
-        end_point_for_ridge = A4
+        end_point_for_ridge = A6
 
     line_a1_end_point_for_ridge = LineString([A1, end_point_for_ridge])
+
+    A7 = line_a1a2.intersection(line_a3b3)
+    A8 = line_a1a2.intersection(line_a4b4)
+    print(A7)
+    line_b3a7 = LineString([B3, A7])
+    line_b4a8 = LineString([B4, A8])
+
+    # offset to find distance for bolts height mounting from left
+    line_a1_offset_left = line_a1_end_point_for_ridge.parallel_offset(
+        distance_ridge + t_connection_plate_ridge, "right")
+    # offset to find distance for bolts height mounting from right
+    line_a1_offset_right = line_a1_end_point_for_ridge.parallel_offset(
+        distance_ridge + t_connection_plate_ridge, "left")
+
+    # intersection on left side
+    A9 = line_a1_offset_left.intersection(line_a1b2_flange)
+
+    # intersection on right side
+    A10 = line_a1_offset_right.intersection(line_a1b1_flange)
+
+    # point on connection plate from left side
+    A11 = nearest_points(line_a1_end_point_for_ridge, A9)
+
+    # point on connection plate from right side
+    A12 = nearest_points(line_a1_end_point_for_ridge, A10)
+
+    # line left side from monuting left side
+    line_a9a11 = LineString([A9, A11[0]])
+
+    # line right side from mounting right side
+    line_a9a12 = LineString([A10, A12[0]])
+
+    # offset to find distance for bolts height, assembly from left, check right space
+    line_space_mount_from_left = line_a1_end_point_for_ridge.parallel_offset(
+        additional_check + t_connection_plate_ridge, "left")
+
+    A13 = line_space_mount_from_left.intersection(line_a1b1_flange)
+
+    # point on connection plate from right side
+    A14 = nearest_points(line_a1_end_point_for_ridge, A13)
+
+    line_a13a14 = LineString([A13, A14[0]])
+
+    # finding lowest point mounting left side
+    if A14[0].y <= A11[0].y:
+        mounting_from_left = A14[0]
+    else:
+        mounting_from_left = A11[0]
+
+    A15 = nearest_points(line_a1_offset_left, mounting_from_left)
+    line_a15 = LineString([A15[0], mounting_from_left])
+
+    looking_value_mounting_from_left = A1.distance(mounting_from_left)
+    print(looking_value_mounting_from_left)
+    
+    # offset to find distance for bolts height, assembly from right, check left space
+    line_space_mount_from_right = line_a1_end_point_for_ridge.parallel_offset(
+        additional_check + t_connection_plate_ridge, "right")
+
+    A16 = line_space_mount_from_right.intersection(line_a1b2_flange)
+
+    # point on connection plate from left side
+    A17 = nearest_points(line_a1_end_point_for_ridge, A16)
+
+    line_a16a17 = LineString([A16, A17[0]])
+
+    # finding lowest point mounting right side
+    if A17[0].y <= A12[0].y:
+        mounting_from_right = A17[0]
+    else:
+        mounting_from_right = A12[0]
+
+    A18 = nearest_points(line_a1_offset_right, mounting_from_right)
+    line_a18 = LineString([A18[0], mounting_from_right])
+
+    looking_value_mounting_from_right = A1.distance(mounting_from_right)
+    print(looking_value_mounting_from_right)
 
     fig1 = Figure(figsize=(3, 3), dpi=140)
  # adding the subplot
@@ -456,12 +530,31 @@ def my_ridge():
     plot2.plot(
         *line_a1b1.xy,
         *line_a1b2.xy,
-        *line_a2b3.xy,
-        *line_a2b4.xy,
+        *line_b3a7.xy,
+        *line_b4a8.xy,
         *line_a1_end_point_for_ridge.xy,
+        *line_a15.xy,
+        *line_a18.xy,
     )
     # Make axis equal
     plot2.axis('equal')
+
+    # printing output
+    result_ridge_left = min_distance(class_bolt_ridge, looking_value_mounting_from_left, diameter_bolt_ridge)
+    result_label = Label(root, text=result_ridge_left)
+    result_label.grid(row=9, column=8, sticky="W")
+    result_label1 = Label(root, text="Distance when mounting from left",
+                          font='Helvetica 10 bold')
+    result_label1.grid(row=9, column=7, sticky="E")
+
+    result_ridge_right = min_distance(class_bolt_ridge, looking_value_mounting_from_right, diameter_bolt_ridge)
+    result_label = Label(root, text=result_ridge_right)
+    result_label.grid(row=10, column=8, sticky="W")
+    result_label1 = Label(root, text="Distance when mounting from right",
+                          font='Helvetica 10 bold')
+    result_label1.grid(row=10, column=7, sticky="E")
+
+
 
     # creating the Tkinter canvas
     # containing the Matplotlib figure
@@ -575,7 +668,7 @@ f_slope_girder_right.insert(0, "10.5")
 
 f_girder_height_ridge = Entry(root, width=20)
 f_girder_height_ridge.grid(row=2, column=8, padx=20)
-f_girder_height_ridge.insert(0, "900")
+f_girder_height_ridge.insert(0, "500")
 
 f_t_flange_girder_left = Entry(root, width=20)
 f_t_flange_girder_left.grid(row=3, column=8, padx=20)
