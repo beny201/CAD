@@ -6,7 +6,6 @@ import math
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-
 LENGTH = {
     "8.8": {
         "M12": (40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 180, 200),
@@ -241,8 +240,8 @@ def my_corner():
     B = Point(start_points[0], start_points[0]-3)
     line_ab = LineString([A, B])
     flange_ab = line_ab.parallel_offset(t_flange_column, "left")
-    # drawings second line bottom flange column
 
+    # drawings second line bottom flange column
     line_cd = line_ab.parallel_offset(height_column, "left")
 
     C = Point(line_cd.coords[0])
@@ -303,19 +302,16 @@ def my_corner():
     looking_value_bottom = A.distance(N)
 
     # intersection of girder flange and space needed for rest of bolt from bottom mounting
-
     O = line_ij2.intersection(flange_ae)
     P = nearest_points(line_ah, O)
     line_op = LineString([O, P[0]])
 
     # intersection of column flange and space needed for rest of bolt from top mounting
-
     R = line_ij3.intersection(flange_ab)
     S = nearest_points(line_ah, R)
 
     line_rs = LineString([R, S[0]])
     looking_value_top_space = A.distance(S)
-    #print(f" Assembly top {looking_value_top_space[0]}")
 
     # drawing line of bolt when mounting from bottom
     T = nearest_points(line_ij1, O)
@@ -323,15 +319,11 @@ def my_corner():
     line_pt = LineString([O, T[0]])
 
     looking_value_bottom_space = A.distance(P)
-    #print(f" Assembly bottom {looking_value_bottom_space[0]}")
 
     # drawing line of bolt when mounting from top
     U = nearest_points(line_ij2, R)
 
     line_ur = LineString([R, U[0]])
-
-    looking_value_bottom_space = A.distance(P)
-    #print(f" Assembly bottom {looking_value_bottom_space[0]}")
 
     fig = Figure(figsize=(3, 3), dpi=140)
 
@@ -499,7 +491,7 @@ def my_ridge():
 
     looking_value_mounting_from_left = A1.distance(mounting_from_left)
     print(looking_value_mounting_from_left)
-    
+
     # offset to find distance for bolts height, assembly from right, check left space
     line_space_mount_from_right = line_a1_end_point_for_ridge.parallel_offset(
         additional_check + t_connection_plate_ridge, "right")
@@ -540,21 +532,21 @@ def my_ridge():
     plot2.axis('equal')
 
     # printing output
-    result_ridge_left = min_distance(class_bolt_ridge, looking_value_mounting_from_left, diameter_bolt_ridge)
+    result_ridge_left = min_distance(
+        class_bolt_ridge, looking_value_mounting_from_left, diameter_bolt_ridge)
     result_label = Label(root, text=result_ridge_left)
     result_label.grid(row=9, column=8, sticky="W")
     result_label1 = Label(root, text="Distance when mounting from left",
                           font='Helvetica 10 bold')
     result_label1.grid(row=9, column=7, sticky="E")
 
-    result_ridge_right = min_distance(class_bolt_ridge, looking_value_mounting_from_right, diameter_bolt_ridge)
+    result_ridge_right = min_distance(
+        class_bolt_ridge, looking_value_mounting_from_right, diameter_bolt_ridge)
     result_label = Label(root, text=result_ridge_right)
     result_label.grid(row=10, column=8, sticky="W")
     result_label1 = Label(root, text="Distance when mounting from right",
                           font='Helvetica 10 bold')
     result_label1.grid(row=10, column=7, sticky="E")
-
-
 
     # creating the Tkinter canvas
     # containing the Matplotlib figure
