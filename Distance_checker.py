@@ -103,8 +103,8 @@ Clamping = {
 }
 root = Tk()
 root.title("Distance checker")
-WIDTH = "1200"
-HEIGHT = "1000"
+WIDTH = "1050"
+HEIGHT = "700"
 root.geometry(f"{WIDTH}x{HEIGHT}")
 
 # x and y values
@@ -177,9 +177,9 @@ def length_bolt(class_bolt, bolt, t_plate):
     new_list = []
     basic_length = 2*T_WASHER[bolt] + T_NUTS[bolt] + \
         (2*t_plate*1000) + A_DISTANCE[bolt]
-    for x in LENGTH[class_bolt][bolt]:
-        if x > basic_length:
-            new_list.append(x)
+    for length in LENGTH[class_bolt][bolt]:
+        if length > basic_length:
+            new_list.append(length)
     return new_list[0]
 
 
@@ -195,9 +195,9 @@ def finding_bolt_for_clamp(class_bolt, bolt, thickness_plate):
     keys = [x for x in LENGTH[class_bolt][bolt]]
     # Making proper clamp length
     searching_bolt = int(Clamping[bolt])
-    clamps = list(range(searching_bolt, (searching_bolt+10*len(keys)), 10))
+    clamps = list(range(searching_bolt, (searching_bolt + 10*len(keys)), 10))
     result = list(zip(keys, clamps))
-    result_which_mach = [(lenght, clamp) for lenght,
+    result_which_mach = [(length, clamp) for length,
                          clamp in result if clamp > 2 * thickness_plate*1000]
     return result_which_mach[0][0]
 
@@ -214,7 +214,7 @@ def min_distance(class_bolt, distance, bolt):
 
 
 def space_for_bolt_bottom(bolt_length, bolt, t_plate):
-    needed_length = (bolt_length-2*t_plate*1000-T_WASHER[bolt])*0.001
+    needed_length = (bolt_length - 2*t_plate*1000 - T_WASHER[bolt])*0.001
     return needed_length
 
 
@@ -233,11 +233,9 @@ def my_corner():
     additional_check = space_for_bolt_bottom(
         bolt_length, diameter_bolt, t_connection_plate)
 
-    print(additional_check)
-    print(bolt_length)
     # drawings first line top flange column
     A = Point(start_points[0], start_points[1])
-    B = Point(start_points[0], start_points[0]-3)
+    B = Point(start_points[0], start_points[0] - 3)
     line_ab = LineString([A, B])
     flange_ab = line_ab.parallel_offset(t_flange_column, "left")
 
@@ -275,19 +273,15 @@ def my_corner():
     line_ij1 = line_ah.parallel_offset(distance + t_connection_plate, "right")
 
     # offset to find distance for bolts height, assembly from bottom, check top space
-
     line_ij2 = line_ah.parallel_offset(
         additional_check + t_connection_plate, "left")
 
     # offset to find distance for bolts height, assembly from top, check bottom space
-
     line_ij3 = line_ah.parallel_offset(
         additional_check + t_connection_plate, "right")
 
     # intersection height of bolt and flange
-
     K = line_ij.intersection(flange_ae)
-
     L = nearest_points(line_ah, K)
 
     line_kl = LineString([K, L[0]])
@@ -396,9 +390,6 @@ def my_ridge():
     additional_check = space_for_bolt_bottom(
         bolt_length_ridge, diameter_bolt_ridge, t_connection_plate_ridge)
 
-    print(additional_check)
-    print(bolt_length_ridge)
-
     # drawings first line top flange
 
     A1 = Point(start_points[0], start_points[1])
@@ -420,10 +411,9 @@ def my_ridge():
 
     A3 = Point(line_a3b3.coords[0])
     B3 = Point(line_a3b3.coords[1])
-    print(A3, B3)
+
     A4 = Point(line_a4b4.coords[0])
     B4 = Point(line_a4b4.coords[1])
-    print(A4, B4)
 
     # line for ridge connection
     line_a1a2 = LineString([A1, A2])
@@ -440,7 +430,7 @@ def my_ridge():
 
     A7 = line_a1a2.intersection(line_a3b3)
     A8 = line_a1a2.intersection(line_a4b4)
-    print(A7)
+
     line_b3a7 = LineString([B3, A7])
     line_b4a8 = LineString([B4, A8])
 
@@ -490,7 +480,6 @@ def my_ridge():
     line_a15 = LineString([A15[0], mounting_from_left])
 
     looking_value_mounting_from_left = A1.distance(mounting_from_left)
-    print(looking_value_mounting_from_left)
 
     # offset to find distance for bolts height, assembly from right, check left space
     line_space_mount_from_right = line_a1_end_point_for_ridge.parallel_offset(
@@ -513,10 +502,9 @@ def my_ridge():
     line_a18 = LineString([A18[0], mounting_from_right])
 
     looking_value_mounting_from_right = A1.distance(mounting_from_right)
-    print(looking_value_mounting_from_right)
 
     fig1 = Figure(figsize=(3, 3), dpi=140)
- # adding the subplot
+    # adding the subplot
     plot2 = fig1.add_subplot(111)
     # plotting the graph
     plot2.plot(
@@ -592,7 +580,7 @@ f_used_class.grid(row=6, column=1, sticky="N")
 # Variable to keep track of the option
 # selected in OptionMenu
 used_bolt = StringVar(root)
-possible_bolts = [x for x in LENGTH[class_bolt]]
+possible_bolts = [length for length in LENGTH[class_bolt]]
 # Set the default value of the variable
 used_bolt.set("Select an bolt")
 f_used_bolt = OptionMenu(root, used_bolt, *possible_bolts)
@@ -608,7 +596,7 @@ f_used_class_ridge.grid(row=6, column=8, sticky="N")
 # Variable to keep track of the option
 # selected in OptionMenu
 used_bolt_ridge = StringVar(root)
-possible_bolts_ridge = [x for x in LENGTH[class_bolt]]
+possible_bolts_ridge = [length for length in LENGTH[class_bolt]]
 # Set the default value of the variable
 used_bolt_ridge.set("Select an bolt")
 f_used_bolt_ridge = OptionMenu(root, used_bolt_ridge, *possible_bolts_ridge)
@@ -677,8 +665,14 @@ f_t_connection_plate_ridge.insert(0, "30")
 
 
 # Create text labels
-empty = Label(root, text="      ",)
+empty = Label(root, text="        ",)
 empty.grid(row=0, column=6, sticky="N")
+
+slope_girder__ridge_units = Label(root, text="Degree []",)
+slope_girder__ridge_units.grid(row=0, rowspan=2, column=9, sticky="W")
+
+profiles_units_ridge = Label(root, text="[mm]",)
+profiles_units_ridge.grid(row=2, rowspan=3,  column=9, sticky="W")
 
 slope_girder_left = Label(root, text="Insert angle of left girder",)
 slope_girder_left.grid(row=0, column=7, sticky="E")
